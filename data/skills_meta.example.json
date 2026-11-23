@@ -1,0 +1,25 @@
+{
+  "_说明": "这是数据结构示例，不是真实数据。让你的 AI 读 data/skills_raw.json 后按这个结构生成 data/skills_meta.json。category 的值必须对应 categories 里某个 id。",
+  "categories": [
+    {
+      "id": "example-a",
+      "name": "示例分类 A",
+      "icon": "◆",
+      "color": "#3b5bdb",
+      "desc": "由你的 AI 按实际用途编写"
+    }
+  ],
+  "skills": [
+    {
+      "name": "示例技能名",
+      "path": "C:/example/path/SKILL.md",
+      "category": "example-a",
+      "summary": "一句话中文说明，由你的 AI 生成",
+      "description": "原始描述，从 workbuddy.db 读取",
+      "when_to_use": "使用时机，从 workbuddy.db 读取",
+      "body": "SKILL.md 正文",
+      "source": "来源",
+      "license": "许可"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+# 个人配置与真实数据（永不入库）
+config.json
+data/skills_raw.json
+data/skills_meta.json
+data/settings.json
+data/settings_baseline.json
+data/scene_state.json
+data/scenes.json
+data/backups/
+data/*.bak
+
+# 运行产物
+__pycache__/
+*.py[cod]
+*.log
+.DS_Store
+Thumbs.db
+
+# 由使用者自己的 AI 生成的脚本（含个人分类结论）
+tools/build_meta.py

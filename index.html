@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkBuddy 技能管家</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="app">
+  <!-- 顶部栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">✦</div>
+      <div>
+        <div class="brand-title">WorkBuddy 技能管家</div>
+        <div class="brand-sub">开关同步 · 分类视图 · 场景切换</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="sync-badge" id="syncBadge"><span class="dot"></span><span id="syncText">已同步</span></div>
+      <span class="top-sep"></span>
+      <button class="btn btn-all-on" id="btnAllOn" title="一键启用全部技能">一键全开</button>
+      <button class="btn btn-all-off" id="btnAllOff" title="一键关闭全部技能，随时可以一键全开恢复">一键全关</button>
+      <span class="top-sep"></span>
+      <button class="btn btn-ghost" id="btnRefreshMeta" title="从 SKILL.md 重新扫描并重建分类">重新扫描技能</button>
+      <button class="btn btn-ghost" id="btnReload" title="重新读取数据库开关状态">刷新状态</button>
+      <button class="btn btn-ghost" id="btnBackup" title="立即生成一个数据库备份">备份数据库</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- 左侧分类 -->
+    <aside class="sidebar">
+      <div class="side-title">⚡ 场景模式 <span class="side-hint">按需加载省 token</span></div>
+      <nav id="sceneNav"></nav>
+      <div class="scene-foot">
+        <button class="btn btn-sm" id="btnAllScenes" title="清空所有覆盖，全部技能启用">全部启用</button>
+        <button class="btn btn-sm" id="btnBaseline" title="恢复你原来的手动开关状态">恢复原状</button>
+      </div>
+      <div class="side-sep"></div>
+      <div class="side-title">技能分类</div>
+      <nav id="catNav"></nav>
+      <div class="side-sep"></div>
+      <div class="side-title">快捷视图</div>
+      <nav>
+        <button class="cat-item" data-quick="on"><span class="cat-ico">◉</span><span class="cat-name">已启用</span><span class="cat-count" id="cntOn">0</span></button>
+        <button class="cat-item" data-quick="off"><span class="cat-ico">○</span><span class="cat-name">已关闭</span><span class="cat-count" id="cntOff">0</span></button>
+      </nav>
+      <div class="side-foot">
+        <div>数据位置</div>
+        <code id="dbPath">—</code>
+        <div class="side-tip">开关写入 WorkBuddy 的 settings.json / skillOverrides（界面真正读取的位置），改动前自动备份。若界面未刷新，重启 WorkBuddy 即可。</div>
+      </div>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="main">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-ico">⌕</span>
+          <input id="search" type="text" placeholder="搜索技能名称、中文说明、描述…" autocomplete="off">
+          <button class="clear-btn" id="clearSearch" hidden>×</button>
+        </div>
+        <div class="toolbar-right">
+          <label class="chk"><input type="checkbox" id="hideOff"> 只看启用</label>
+          <button class="btn btn-sm" id="expandAll">展开全部说明</button>
+        </div>
+      </div>
+
+      <div class="cat-head" id="catHead">
+        <div>
+          <h1 id="catTitle">全部技能</h1>
+          <p id="catDesc">正在读取技能…</p>
+        </div>
+        <div class="cat-bulk" id="bulkBar" hidden>
+          <span class="bulk-label">本分类批量：</span>
+          <button class="btn btn-sm btn-on" data-bulk="1">全部启用</button>
+          <button class="btn btn-sm btn-off" data-bulk="0">全部关闭</button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" hidden>没有匹配的技能</div>
+    </main>
+  </div>
+</div>
+
+<!-- 详情抽屉 -->
+<div class="overlay" id="overlay" hidden></div>
+<section class="drawer" id="drawer" hidden>
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-cat" id="dCat">分类</div>
+      <h2 id="dName">技能名称</h2>
+    </div>
+    <button class="icon-btn" id="closeDrawer" title="关闭">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="d-label-cn">✦ 中文解读</div>
+    <div class="d-summary" id="dSummary"></div>
+
+    <div class="d-switches">
+      <div class="sw-row">
+        <div><div class="sw-title">总开关</div><div class="sw-sub">关闭后 WorkBuddy 不再加载该技能</div></div>
+        <label class="switch"><input type="checkbox" id="dDisabled" data-field="disabled"><span class="slider"></span></label>
+      </div>
+      <div class="sw-row">
+        <div><div class="sw-title">允许 AI 自动调用</div><div class="sw-sub">关闭后只能由你手动触发</div></div>
+        <label class="switch"><input type="checkbox" id="dModelInvoke" data-field="disable_model_invocation"><span class="slider"></span></label>
+      </div>
+      <div class="sw-row">
+        <div><div class="sw-title">用户可手动调用</div><div class="sw-sub">关闭后连手动调用也隐藏</div></div>
+        <label class="switch"><input type="checkbox" id="dUserInvoke" data-field="user_invocable"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="d-section">
+      <h3>什么时候用它</h3>
+      <div class="d-text" id="dWhen">—</div>
+    </div>
+    <div class="d-section">
+      <h3>原始描述（英文原文）</h3>
+      <div class="d-text" id="dDesc">—</div>
+    </div>
+    <div class="d-section">
+      <h3>技能文件 SKILL.md 正文（原文）</h3>
+      <div class="d-body" id="dBody"></div>
+    </div>
+    <div class="d-section">
+      <h3>技术信息</h3>
+      <div class="d-meta" id="dMeta"></div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

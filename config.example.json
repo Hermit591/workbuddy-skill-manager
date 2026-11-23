@@ -1,0 +1,10 @@
+{
+  "_说明": "复制本文件为 config.json。所有路径留空即使用 WorkBuddy 默认 profile（用户主目录下的 .workbuddy）。如需指定自定义 profile，把 profile 填成绝对路径（Windows 路径请用正斜杠或双反斜杠）。",
+  "profile": "",
+  "db": "",
+  "settings": "",
+  "metaFile": "skills_meta.json",
+  "scenesFile": "scenes.json",
+  "baselineFile": "settings_baseline.json",
+  "port": 17823
+}
